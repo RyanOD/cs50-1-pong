@@ -1,4 +1,8 @@
 push = require 'push'
+Class = require 'class'
+
+require 'Paddle'
+require 'Ball'
 
 -- Define game constants
 WINDOW_WIDTH = 1280
@@ -37,11 +41,11 @@ function love.load()
 
   gameState = 'start'
 
-  ballX = BALL_X
-  ballY = BALL_Y
+  --ballX = BALL_X
+  --ballY = BALL_Y
 
-  ballDX = BALL_VELOCITY_X
-  ballDY = BALL_VELOCITY_Y
+  --ballDX = BALL_VELOCITY_X
+  --ballDY = BALL_VELOCITY_Y
 
   push:setupScreen( VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
@@ -57,11 +61,22 @@ function love.load()
 
   paddleLeftY = PADDLE_LEFT_Y
   paddleRightY = PADDLE_RIGHT_Y
+
+  ball = Ball( BALL_X, BALL_Y, BALL_RADIUS )
+  paddleLeft = Paddle( PADDLE_LEFT_X, PADDLE_LEFT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
+  paddleRight = Paddle( PADDLE_RIGHT_X, PADDLE_RIGHT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
 end
 
 function love.keypressed( key )
   if key == 'escape' then
     love.event.quit()
+  elseif key == 'space' then
+    if gameState == 'start' then
+      gameState = 'play'
+    else
+      gameState = 'start'
+      ball:reset()
+    end
   end
 end
 
@@ -70,27 +85,19 @@ function love.update(dt)
   mainData = love.filesystem.load("main.lua")()
 
   if love.keyboard.isDown( 'w' ) then
-    paddleLeftY = math.max( BORDER_PADDING, paddleLeftY - PADDLE_SPEED * dt )
+    paddleLeft:update( -dt )
   elseif love.keyboard.isDown( 's' ) then
-    paddleLeftY = math.min( VIRTUAL_HEIGHT - PADDLE_HEIGHT - BORDER_PADDING, paddleLeftY + PADDLE_SPEED * dt )
+    paddleLeft:update( dt )
   end
 
   if love.keyboard.isDown( 'up' ) then
-    paddleRightY = math.max( BORDER_PADDING, paddleRightY - PADDLE_SPEED * dt )
+    paddleRight:update( -dt )
   elseif love.keyboard.isDown( 'down' ) then
-    paddleRightY = math.min( VIRTUAL_HEIGHT - PADDLE_HEIGHT - BORDER_PADDING, paddleRightY + PADDLE_SPEED * dt )
-  end
-
-  -- Need to make sure the ball trajectory guarantees it doesn't go of the top or bottom of screen on initial serve
-  if love.keyboard.isDown( 'space' ) and gameState == 'start' then
-    gameState = 'play'
-    ballDX = math.random( 1, 2 ) == 1 and 100 or -100
-    ballDY = math.random( -50, 50 )
+    paddleRight:update( dt )
   end
 
   if gameState == 'play' then
-    ballX = ballX + ballDX * dt
-    ballY = ballY + ballDY * dt
+    ball:update( dt )
   end
 end
 
@@ -105,9 +112,10 @@ function love.draw()
   love.graphics.printf( 'Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
   love.graphics.printf( 'Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
 
-  love.graphics.rectangle( 'fill', PADDLE_LEFT_X, paddleLeftY, PADDLE_WIDTH, PADDLE_HEIGHT )
-  love.graphics.rectangle( 'fill', PADDLE_RIGHT_X, paddleRightY, PADDLE_WIDTH, PADDLE_HEIGHT )
+  paddleLeft:render()
+  paddleRight:render()
+  
+  ball:render()
 
-  love.graphics.circle( 'fill', ballX, ballY, BALL_RADIUS )
   push:apply( 'end' )
 end
