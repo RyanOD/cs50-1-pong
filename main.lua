@@ -16,6 +16,8 @@ PADDLE_RIGHT_X = VIRTUAL_WIDTH / 2 + 205
 PADDLE_LEFT_Y = VIRTUAL_HEIGHT / 2 - 50
 PADDLE_RIGHT_Y = VIRTUAL_HEIGHT / 2 + 50
 
+BORDER_PADDING = 2
+
 BALL_X = VIRTUAL_WIDTH / 2
 BALL_Y = VIRTUAL_HEIGHT / 2
 BALL_RADIUS = 3
@@ -25,25 +27,21 @@ RIGHT_SCORE_X = VIRTUAL_WIDTH + 330
 
 PADDLE_SPEED = 200
 
--- Here we are overwriting the love.load file
-function love.update(dt)
-  mainData = love.filesystem.load("main.lua")()
-
-  if love.keyboard.isDown( 'w' ) then
-    paddleLeftY = player1Y - PADDLE_SPEED * dt
-  elseif love.keyboard.isDown( 's' ) then
-    paddleLeftY = paddleLeftY + PADDLE_SPEED * dt
-  end
-
-  if love.keyboard.isDown( 'up' ) then
-    paddleRightY = paddleRightY - PADDLE_SPEED * dt
-  elseif love.keyboard.isDown( 'down' ) then
-    paddleRightY = paddleRightY - PADDLE_SPEED * dt
-  end
-end
+BALL_VELOCITY_X = 0
+BALL_VELOCITY_Y = 0
 
 function love.load()
   love.graphics.setDefaultFilter( 'nearest', 'nearest' )
+
+  math.randomseed(os.time())
+
+  gameState = 'start'
+
+  ballX = BALL_X
+  ballY = BALL_Y
+
+  ballDX = BALL_VELOCITY_X
+  ballDY = BALL_VELOCITY_Y
 
   push:setupScreen( VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
@@ -67,16 +65,49 @@ function love.keypressed( key )
   end
 end
 
+-- Here we are overwriting the love.load file
+function love.update(dt)
+  mainData = love.filesystem.load("main.lua")()
+
+  if love.keyboard.isDown( 'w' ) then
+    paddleLeftY = math.max( BORDER_PADDING, paddleLeftY - PADDLE_SPEED * dt )
+  elseif love.keyboard.isDown( 's' ) then
+    paddleLeftY = math.min( VIRTUAL_HEIGHT - PADDLE_HEIGHT - BORDER_PADDING, paddleLeftY + PADDLE_SPEED * dt )
+  end
+
+  if love.keyboard.isDown( 'up' ) then
+    paddleRightY = math.max( BORDER_PADDING, paddleRightY - PADDLE_SPEED * dt )
+  elseif love.keyboard.isDown( 'down' ) then
+    paddleRightY = math.min( VIRTUAL_HEIGHT - PADDLE_HEIGHT - BORDER_PADDING, paddleRightY + PADDLE_SPEED * dt )
+  end
+
+  -- Need to make sure the ball trajectory guarantees it doesn't go of the top or bottom of screen on initial serve
+  if love.keyboard.isDown( 'space' ) and gameState == 'start' then
+    gameState = 'play'
+    ballDX = math.random( 1, 2 ) == 1 and 100 or -100
+    ballDY = math.random( -50, 50 )
+  end
+
+  if gameState == 'play' then
+    ballX = ballX + ballDX * dt
+    ballY = ballY + ballDY * dt
+  end
+end
+
 function love.draw()
   push:apply( 'start' )
   love.graphics.clear(40/255, 45/255, 52/255, 255/255)
+  
   love.graphics.setFont( titleFont )
   love.graphics.printf( 'Hello Pong!', 0, 20, VIRTUAL_WIDTH, 'center' )
+  
   love.graphics.setFont( scoreFont )
   love.graphics.printf( 'Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
   love.graphics.printf( 'Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
-  love.graphics.rectangle( 'fill', PADDLE_LEFT_X, PADDLE_LEFT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
-  love.graphics.rectangle( 'fill', PADDLE_RIGHT_X, PADDLE_RIGHT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
-  love.graphics.circle( 'fill', BALL_X, BALL_Y, BALL_RADIUS )
+
+  love.graphics.rectangle( 'fill', PADDLE_LEFT_X, paddleLeftY, PADDLE_WIDTH, PADDLE_HEIGHT )
+  love.graphics.rectangle( 'fill', PADDLE_RIGHT_X, paddleRightY, PADDLE_WIDTH, PADDLE_HEIGHT )
+
+  love.graphics.circle( 'fill', ballX, ballY, BALL_RADIUS )
   push:apply( 'end' )
 end
