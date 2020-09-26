@@ -1,3 +1,6 @@
+--[[
+Pong clone based on work by 
+--]]
 push = require 'push'
 Class = require 'class'
 
@@ -41,6 +44,8 @@ function love.load()
 
   gameState = 'start'
 
+  love.window.setTitle( 'Pong' )
+  
   --ballX = BALL_X
   --ballY = BALL_Y
 
@@ -114,7 +119,7 @@ function love.draw()
 
   paddleLeft:render()
   paddleRight:render()
-  
+
   ball:render()
 
   push:apply( 'end' )
