@@ -1,41 +1,15 @@
 --[[
-Pong clone based on work by 
+Pong clone written by Ryan O'Donnell for CSE50 through edx.org. Based on work by instructor, Colton Ogden.
+Copyright 2020
+All rights reserved
 --]]
+
 push = require 'push'
 Class = require 'class'
 
+require 'config'
 require 'Paddle'
 require 'Ball'
-
--- Define game constants
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
-
-VIRTUAL_WIDTH = 432
-VIRTUAL_HEIGHT = 243
-
-PADDLE_WIDTH = 5
-PADDLE_HEIGHT = 30
-
-PADDLE_LEFT_X = VIRTUAL_WIDTH / 2 - 210
-PADDLE_RIGHT_X = VIRTUAL_WIDTH / 2 + 205
-
-PADDLE_LEFT_Y = VIRTUAL_HEIGHT / 2 - 50
-PADDLE_RIGHT_Y = VIRTUAL_HEIGHT / 2 + 50
-
-BORDER_PADDING = 2
-
-BALL_X = VIRTUAL_WIDTH / 2
-BALL_Y = VIRTUAL_HEIGHT / 2
-BALL_RADIUS = 3
-
-LEFT_SCORE_X = VIRTUAL_WIDTH - 360
-RIGHT_SCORE_X = VIRTUAL_WIDTH + 330
-
-PADDLE_SPEED = 200
-
-BALL_VELOCITY_X = 0
-BALL_VELOCITY_Y = 0
 
 function love.load()
   love.graphics.setDefaultFilter( 'nearest', 'nearest' )
@@ -122,5 +96,13 @@ function love.draw()
 
   ball:render()
 
+  displayFPS()
+
   push:apply( 'end' )
+end
+
+function displayFPS()
+  love.graphics.setFont( scoreFont )
+  love.graphics.setColor( 0, 255, 0, 255 )
+  love.graphics.print( 'FPS: ' .. tostring(love.timer.getFPS()), 10, 10 )
 end
