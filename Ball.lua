@@ -1,9 +1,10 @@
 Ball = Class{}
 
-function Ball:init( x, y, radius )
+function Ball:init( x, y, radius, color )
   self.x = x
   self.y = y
   self.radius = radius
+  self.color = color
   self.dx = math.random( 1, 2 ) == 1 and 100 or -100
   self.dy = math.random( -50, 50 )
 end
@@ -21,5 +22,6 @@ function Ball:update( dt )
 end
 
 function Ball:render()
+  love.graphics.setColor( self.color )
   love.graphics.circle( 'fill', self.x, self.y, self.radius )
 end

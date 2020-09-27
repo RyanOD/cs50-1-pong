@@ -41,9 +41,9 @@ function love.load()
   paddleLeftY = PADDLE_LEFT_Y
   paddleRightY = PADDLE_RIGHT_Y
 
-  ball = Ball( BALL_X, BALL_Y, BALL_RADIUS )
-  paddleLeft = Paddle( PADDLE_LEFT_X, PADDLE_LEFT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
-  paddleRight = Paddle( PADDLE_RIGHT_X, PADDLE_RIGHT_Y, PADDLE_WIDTH, PADDLE_HEIGHT )
+  ball = Ball( BALL_X, BALL_Y, BALL_RADIUS, BALL_COLOR )
+  paddleLeft = Paddle( PADDLE_LEFT_X, PADDLE_LEFT_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_LEFT_COLOR )
+  paddleRight = Paddle( PADDLE_RIGHT_X, PADDLE_RIGHT_Y, PADDLE_WIDTH, PADDLE_HEIGHT, PADDLE_RIGHT_COLOR )
 end
 
 function love.keypressed( key )
