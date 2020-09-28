@@ -5,14 +5,14 @@ function Ball:init( x, y, radius, color )
   self.y = y
   self.radius = radius
   self.color = color
-  self.dx = math.random( 1, 2 ) == 1 and 100 or -100
+  self.dx = math.random( 1, 2 ) == 1 and 200 or -200
   self.dy = math.random( -50, 50 )
 end
 
 function Ball:reset()
   self.x = VIRTUAL_WIDTH / 2
   self.y = VIRTUAL_HEIGHT / 2
-  self.dx = math.random( 1, 2 ) == 1 and 100 or -100
+  self.dx = math.random( 1, 2 ) == 1 and -200 or 200
   self.dy = math.random( -50, 50 )
 end
 
@@ -37,13 +37,20 @@ function Ball:paddleCollision( paddle )
   if self.y - self.radius > paddle.y + PADDLE_HEIGHT or paddle.y > self.y + self.radius then
     return false
   end
-  
+
+  if self.dx > 0 then
+    self.x = paddle.x - self.radius
+  else
+    self.x = paddle.x + PADDLE_WIDTH + self.radius
+  end
+
   self.dy = self.dy < 0 and -math.random( 50 ) or math.random( 50 )
+  
   return true
 end
 
 function Ball:boundaryCollision()
-  if self.y + self.radius < VIRTUAL_HEIGHT then
+  if self.y - self.radius > 0 and self.y + self.radius < VIRTUAL_HEIGHT then
     return false
   end
 
