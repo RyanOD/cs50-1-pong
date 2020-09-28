@@ -61,22 +61,26 @@ end
 
 -- Here we are overwriting the love.load file
 function love.update(dt)
-  mainData = love.filesystem.load("main.lua")()
-
-  if love.keyboard.isDown( 'w' ) and paddleLeft.y > BORDER_PADDING then
-    paddleLeft:update( -dt )
-  elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height - BORDER_PADDING then
-    paddleLeft:update( dt )
-  end
-
-  if love.keyboard.isDown( 'up' ) and paddleRight.y > BORDER_PADDING then
-    paddleRight:update( -dt )
-  elseif love.keyboard.isDown( 'down' ) and paddleRight.y < VIRTUAL_HEIGHT - paddleRight.height - BORDER_PADDING then
-    paddleRight:update( dt )
-  end
+  --mainData = love.filesystem.load("main.lua")()
 
   if gameState == 'play' then
     ball:update( dt )
+
+    if love.keyboard.isDown( 'w' ) and paddleLeft.y > BORDER_PADDING then
+      paddleLeft:update( -dt )
+    elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height - BORDER_PADDING then
+      paddleLeft:update( dt )
+    end
+
+    if love.keyboard.isDown( 'up' ) and paddleRight.y > BORDER_PADDING then
+      paddleRight:update( -dt )
+    elseif love.keyboard.isDown( 'down' ) and paddleRight.y < VIRTUAL_HEIGHT - paddleRight.height - BORDER_PADDING then
+      paddleRight:update( dt )
+    end
+
+    if( ball:collision( paddleLeft ) or ball:collision( paddleRight )) then
+      ball:reversal()
+    end
   end
 end
 
