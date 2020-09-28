@@ -1,6 +1,8 @@
 --[[
 Pong clone written by Ryan O'Donnell for CSE50 through edx.org. Based on work by instructor, Colton Ogden.
+
 Copyright 2020
+
 All rights reserved
 --]]
 
@@ -19,12 +21,6 @@ function love.load()
   gameState = 'start'
 
   love.window.setTitle( 'Pong' )
-  
-  --ballX = BALL_X
-  --ballY = BALL_Y
-
-  --ballDX = BALL_VELOCITY_X
-  --ballDY = BALL_VELOCITY_Y
 
   push:setupScreen( VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
@@ -112,5 +108,6 @@ end
 function displayFPS()
   love.graphics.setFont( scoreFont )
   love.graphics.setColor( 0, 255, 0, 255 )
-  love.graphics.print( 'FPS: ' .. tostring(love.timer.getFPS()), 10, 10 )
+  --love.graphics.print( 'FPS: ' .. tostring(love.timer.getFPS()), 10, 10 )
+  love.graphics.print( 'dx: ' .. tostring(ball.dx), 10, 10 )
 end
