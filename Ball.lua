@@ -16,8 +16,12 @@ function Ball:reset()
   self.dy = math.random( -50, 50 )
 end
 
-function Ball:reversal()
+function Ball:reversalX()
   self.dx = self.dx * -1.03
+end
+
+function Ball:reversalY()
+  self.dy = self.dy * -1
 end
 
 function Ball:update( dt )
@@ -25,12 +29,21 @@ function Ball:update( dt )
   self.y = self.y + self.dy * dt
 end
 
-function Ball:collision( paddle )
+function Ball:paddleCollision( paddle )
   if self.x - self.radius > paddle.x + PADDLE_WIDTH or paddle.x > self.x + self.radius then
     return false
   end
 
   if self.y - self.radius > paddle.y + PADDLE_HEIGHT or paddle.y > self.y + self.radius then
+    return false
+  end
+  
+  self.dy = self.dy < 0 and -math.random( 50 ) or math.random( 50 )
+  return true
+end
+
+function Ball:boundaryCollision()
+  if self.y + self.radius < VIRTUAL_HEIGHT then
     return false
   end
 

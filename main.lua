@@ -78,8 +78,12 @@ function love.update(dt)
       paddleRight:update( dt )
     end
 
-    if( ball:collision( paddleLeft ) or ball:collision( paddleRight )) then
-      ball:reversal()
+    if ball:paddleCollision( paddleLeft ) or ball:paddleCollision( paddleRight ) then
+      ball:reversalX()
+    end
+
+    if ball:boundaryCollision() then
+      ball:reversalY()
     end
   end
 end
