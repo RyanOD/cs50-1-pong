@@ -131,6 +131,19 @@ function love.update(dt)
 
       ball:reversal( 'y' )
     end
+
+    if ball.x <= -ball.radius then
+      paddleRightScore = paddleRightScore + 1
+      gameState = 'start'
+      ball:reset()
+    end
+    
+    if ball.x >= VIRTUAL_WIDTH + ball.radius then
+      paddleLeftScore = paddleLeftScore + 1
+      gameState = 'start'
+      ball:reset()
+    end
+
   end
 end
 
