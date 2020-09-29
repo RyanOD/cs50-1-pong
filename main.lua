@@ -29,6 +29,7 @@ function love.load()
   })
 
   titleFont = love.graphics.newFont( 'vcr.ttf', 10 )
+  servingFont = love.graphics.newFont( 'vcr.ttf', 6 )
   scoreFont = love.graphics.newFont( 'vcr.ttf', 8 )
 
   paddleLeftScore = 0
@@ -36,6 +37,8 @@ function love.load()
 
   paddleLeftY = PADDLE_LEFT_Y
   paddleRightY = PADDLE_RIGHT_Y
+
+  servingPlayer = 'right'
 
   -- Instantiate ball object
   ball = Ball( BALL_X,
@@ -65,7 +68,7 @@ function love.keypressed( key )
     love.event.quit()
   
   elseif key == 'space' then
-    if gameState == 'start' then
+    if gameState == 'start' or gameState == 'serve' then
       gameState = 'play'
     else
       gameState = 'start'
@@ -78,8 +81,15 @@ end
 function love.update(dt)
   --mainData = love.filesystem.load("main.lua")()
 
-  if gameState == 'play' then
-    ball:update( dt )
+  if gameState == 'serve' then
+    if servingPlayer == 'Left' then
+      ball.dx = math.abs( ball.dx )
+    elseif servingPlayer == 'Right' then
+      ball.dx = -1 * math.abs( ball.dx )
+    end
+
+  elseif gameState == 'play' then
+      ball:update( dt )
 
     -- Left paddle position controls
     if love.keyboard.isDown( 'w' ) and paddleLeft.y > 0 then
@@ -134,16 +144,17 @@ function love.update(dt)
 
     if ball.x <= -ball.radius then
       paddleRightScore = paddleRightScore + 1
-      gameState = 'start'
+      servingPlayer = 'Right'
+      gameState = 'serve'
       ball:reset()
     end
     
     if ball.x >= VIRTUAL_WIDTH + ball.radius then
       paddleLeftScore = paddleLeftScore + 1
-      gameState = 'start'
+      servingPlayer = 'Left'
+      gameState = 'serve'
       ball:reset()
     end
-
   end
 end
 
@@ -153,7 +164,8 @@ function love.draw()
   
   love.graphics.setFont( titleFont )
   love.graphics.printf( 'Hello Pong!', 0, 20, VIRTUAL_WIDTH, 'center' )
-  
+  love.graphics.setFont( servingFont )
+  love.graphics.printf( 'Serving player = ' .. servingPlayer, 0, 40, VIRTUAL_WIDTH, 'center' )
   love.graphics.setFont( scoreFont )
   love.graphics.printf( 'Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
   love.graphics.printf( 'Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )

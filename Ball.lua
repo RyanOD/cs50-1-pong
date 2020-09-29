@@ -16,6 +16,10 @@ function Ball:reset()
   self.dy = math.random( -50, 50 )
 end
 
+function Ball:serve( player )
+  
+end
+
 function Ball:update( dt )
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
