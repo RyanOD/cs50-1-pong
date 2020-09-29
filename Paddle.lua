@@ -1,9 +1,10 @@
 Paddle = Class{}
 
-function Paddle:init( x, y, width, height, color )
+function Paddle:init( x, y, width, height, fillColor, borderColor )
   self.x = x
   self.y = y
-  self.color = color
+  self.fillColor = fillColor
+  self.borderColor = borderColor
   self.width = width
   self.height = height
 end
@@ -13,6 +14,8 @@ function Paddle:update( dt )
 end
 
 function Paddle:render( x, y )
-  love.graphics.setColor( self.color )
+  love.graphics.setColor( self.fillColor )
   love.graphics.rectangle( 'fill', self.x, self.y, self.width, self.height )
+  love.graphics.setColor( self.borderColor)
+  love.graphics.rectangle( 'line', self.x, self.y, self.width, self.height )
 end

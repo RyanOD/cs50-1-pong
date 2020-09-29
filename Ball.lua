@@ -16,19 +16,12 @@ function Ball:reset()
   self.dy = math.random( -50, 50 )
 end
 
-function Ball:reversalX()
-  self.dx = self.dx * -1.03
-end
-
-function Ball:reversalY()
-  self.dy = self.dy * -1
-end
-
 function Ball:update( dt )
   self.x = self.x + self.dx * dt
   self.y = self.y + self.dy * dt
 end
 
+-- Method to detect ball and paddle collisions
 function Ball:paddleCollision( paddle )
   if self.x - self.radius > paddle.x + PADDLE_WIDTH or paddle.x > self.x + self.radius then
     return false
@@ -38,17 +31,10 @@ function Ball:paddleCollision( paddle )
     return false
   end
 
-  if self.dx > 0 then
-    self.x = paddle.x - self.radius
-  else
-    self.x = paddle.x + PADDLE_WIDTH + self.radius
-  end
-
-  self.dy = self.dy < 0 and -math.random( 50 ) or math.random( 50 )
-  
   return true
 end
 
+-- Method to detect ball and horizontal boundry collisions
 function Ball:boundaryCollision()
   if self.y - self.radius > 0 and self.y + self.radius < VIRTUAL_HEIGHT then
     return false
@@ -57,6 +43,16 @@ function Ball:boundaryCollision()
   return true
 end
 
+-- Method to reverse either x or y direction of ball
+function Ball:reversal( direction )
+  if direction == 'x' then
+    self.dx = self.dx * -1.03
+  elseif direction == 'y' then
+    self.dy = self.dy * -1
+  end
+end
+
+-- Method to render ball to screen
 function Ball:render()
   love.graphics.setColor( self.color )
   love.graphics.circle( 'fill', self.x, self.y, self.radius )
