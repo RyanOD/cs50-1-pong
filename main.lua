@@ -70,8 +70,10 @@ function love.keypressed( key )
   elseif key == 'space' then
     if gameState == 'start' or gameState == 'serve' then
       gameState = 'play'
-    else
+    elseif gameState == 'done' then
       gameState = 'start'
+      paddleLeftScore = 0
+      paddleRightScore = 0
       ball:reset()
     end
   end
@@ -144,16 +146,26 @@ function love.update(dt)
 
     if ball.x <= -ball.radius then
       paddleRightScore = paddleRightScore + 1
-      servingPlayer = 'Right'
-      gameState = 'serve'
-      ball:reset()
+      if( paddleRightScore == 2 ) then
+        winningPlayer = 'Right'
+        servingPlayer = 'Left'
+        gameState = 'done'
+      else
+        gameState = 'serve'
+        ball:reset()
+      end
     end
     
     if ball.x >= VIRTUAL_WIDTH + ball.radius then
       paddleLeftScore = paddleLeftScore + 1
-      servingPlayer = 'Left'
-      gameState = 'serve'
-      ball:reset()
+      if( paddleLeftScore == 2 ) then
+        winningPlayer = 'Left'
+        servingPlayer = 'Right'
+        gameState = 'done'
+      else
+        gameState = 'serve'
+        ball:reset()
+      end
     end
   end
 end
@@ -169,6 +181,13 @@ function love.draw()
   love.graphics.setFont( scoreFont )
   love.graphics.printf( 'Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
   love.graphics.printf( 'Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
+
+  if gameState == 'done' then
+    love.graphics.setFont( titleFont )
+    love.graphics.printf( 'The player on the '  .. winningPlayer .. ' wins!', 0, 100, VIRTUAL_WIDTH, 'center' )
+    love.graphics.setFont( scoreFont )
+    love.graphics.printf( 'Press the space bar to play again...', 0, 130, VIRTUAL_WIDTH, 'center' )
+  end
 
   paddleLeft:render()
   paddleRight:render()
