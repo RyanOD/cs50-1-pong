@@ -24,7 +24,7 @@ function love.load()
 
   push:setupScreen( VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
     fullscreen = false,
-    resizable = false,
+    resizable = true,
     vsync = true
   })
 
@@ -35,8 +35,11 @@ function love.load()
   paddleLeftScore = 0
   paddleRightScore = 0
 
-  paddleLeftY = PADDLE_LEFT_Y
-  paddleRightY = PADDLE_RIGHT_Y
+  sounds = {
+    ['paddleHit'] = love.audio.newSource( 'sounds/bounce.wav', 'static' ),
+    ['barrierHit'] = love.audio.newSource( 'sounds/block.wav', 'static' ),
+    ['score'] = love.audio.newSource( 'sounds/idea.wav', 'static' )
+  }
 
   servingPlayer = 'right'
 
@@ -74,9 +77,15 @@ function love.keypressed( key )
       gameState = 'start'
       paddleLeftScore = 0
       paddleRightScore = 0
+      paddleLeft.y = PADDLE_LEFT_Y
+      paddleRight.y = PADDLE_RIGHT_Y
       ball:reset()
     end
   end
+end
+
+function love.resize( w, h )
+  push:resize( w, h )
 end
 
 -- Here we are overwriting the love.load file
@@ -114,9 +123,9 @@ function love.update(dt)
       else
         ball.x = paddleLeft.x + PADDLE_WIDTH + ball.radius
       end
-    
-      ball:reversal( 'x' )
 
+      sounds['paddleHit']:play()
+      ball:reversal( 'x' )
       ball.dy = ball.dy < 0 and -math.random( 10, 150 ) or math.random( 10, 150 )
     end
 
@@ -128,8 +137,8 @@ function love.update(dt)
         ball.x = paddleRight.x + PADDLE_WIDTH + ball.radius
       end
     
+      sounds['paddleHit']:play()
       ball:reversal( 'x' )
-
       ball.dy = ball.dy < 0 and -math.random( 10, 150 ) or math.random( 10, 150 )
     end
 
@@ -141,12 +150,14 @@ function love.update(dt)
         ball.y = ball.radius
       end
 
+      sounds['barrierHit']:play()
       ball:reversal( 'y' )
     end
 
     if ball.x <= -ball.radius then
+      sounds['score']:play()
       paddleRightScore = paddleRightScore + 1
-      if( paddleRightScore == 2 ) then
+      if( paddleRightScore == 10 ) then
         winningPlayer = 'Right'
         servingPlayer = 'Left'
         gameState = 'done'
@@ -157,8 +168,9 @@ function love.update(dt)
     end
     
     if ball.x >= VIRTUAL_WIDTH + ball.radius then
+      sounds['score']:play()
       paddleLeftScore = paddleLeftScore + 1
-      if( paddleLeftScore == 2 ) then
+      if( paddleLeftScore == 10 ) then
         winningPlayer = 'Left'
         servingPlayer = 'Right'
         gameState = 'done'
@@ -203,5 +215,5 @@ function displayFPS()
   love.graphics.setFont( scoreFont )
   love.graphics.setColor( 0, 255, 0, 255 )
   --love.graphics.print( 'FPS: ' .. tostring(love.timer.getFPS()), 10, 10 )
-  love.graphics.print( 'dx: ' .. tostring(ball.dx), 10, 10 )
+  --love.graphics.print( 'dx: ' .. tostring(ball.dx), 10, 10 )
 end
