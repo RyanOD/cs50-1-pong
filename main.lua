@@ -28,9 +28,9 @@ function love.load()
     vsync = true
   })
 
-  titleFont = love.graphics.newFont( 'vcr.ttf', 10 )
-  servingFont = love.graphics.newFont( 'vcr.ttf', 6 )
-  scoreFont = love.graphics.newFont( 'vcr.ttf', 8 )
+  titleFont = love.graphics.newFont( 'fonts/vcr.ttf', 10 )
+  servingFont = love.graphics.newFont( 'fonts/vcr.ttf', 6 )
+  scoreFont = love.graphics.newFont( 'fonts/vcr.ttf', 8 )
 
   paddleLeftScore = 0
   paddleRightScore = 0
