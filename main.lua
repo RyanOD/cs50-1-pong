@@ -103,11 +103,18 @@ function love.update(dt)
       ball:update( dt )
 
     -- Left paddle position controls
-    if love.keyboard.isDown( 'w' ) and paddleLeft.y > 0 then
-      paddleLeft:update( -dt )
-    elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height then
+
+    if ball.y > paddleLeft.y and ball.dx < 0 then
       paddleLeft:update( dt )
+    elseif ball.y < paddleLeft.y and ball.dx < 0 then
+      paddleLeft:update( -dt )
     end
+
+    --if love.keyboard.isDown( 'w' ) and paddleLeft.y > 0 then
+      --paddleLeft:update( -dt )
+    --elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height then
+      --paddleLeft:update( dt )
+    --end
 
     -- Right paddle position controls
     if love.keyboard.isDown( 'up' ) and paddleRight.y > 0 then
