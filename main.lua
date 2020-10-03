@@ -67,20 +67,26 @@ function love.load()
 end
 
 function love.keypressed( key )
+  -- Quit game
   if key == 'escape' then
     love.event.quit()
-  
-  elseif key == 'space' then
-    if gameState == 'start' or gameState == 'serve' then
-      gameState = 'play'
-    elseif gameState == 'done' then
-      gameState = 'start'
-      paddleLeftScore = 0
-      paddleRightScore = 0
-      paddleLeft.y = PADDLE_LEFT_Y
-      paddleRight.y = PADDLE_RIGHT_Y
-      ball:reset()
-    end
+  end
+
+  -- Set number of players
+  if key == '1' or key == '2' and gameState == 'start' then
+    playerCount = key
+  end
+
+  -- Start game by setting game state to "play"
+  if key == 'space' and gameState == 'start' or gameState == 'serve' or gameState == 'play' then
+    gameState = 'play'
+  elseif gameState == 'done' then
+    gameState = 'start'
+    paddleLeftScore = 0
+    paddleRightScore = 0
+    paddleLeft.y = PADDLE_LEFT_Y
+    paddleRight.y = PADDLE_RIGHT_Y
+    ball:reset()
   end
 end
 
@@ -104,17 +110,19 @@ function love.update(dt)
 
     -- Left paddle position controls
 
-    if ball.y > paddleLeft.y and ball.dx < 0 then
-      paddleLeft:update( dt )
-    elseif ball.y < paddleLeft.y and ball.dx < 0 then
-      paddleLeft:update( -dt )
+    if playerCount == '1' then
+      if ball.y > paddleLeft.y and ball.dx < 0 then
+        paddleLeft:update( dt )
+      elseif ball.y < paddleLeft.y and ball.dx < 0 then
+        paddleLeft:update( -dt )
+      end
+    elseif playerCount == '2' then
+      if love.keyboard.isDown( 'w' ) and paddleLeft.y > 0 then
+        paddleLeft:update( -dt )
+      elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height then
+        paddleLeft:update( dt )
+      end
     end
-
-    --if love.keyboard.isDown( 'w' ) and paddleLeft.y > 0 then
-      --paddleLeft:update( -dt )
-    --elseif love.keyboard.isDown( 's' ) and paddleLeft.y < VIRTUAL_HEIGHT - paddleLeft.height then
-      --paddleLeft:update( dt )
-    --end
 
     -- Right paddle position controls
     if love.keyboard.isDown( 'up' ) and paddleRight.y > 0 then
@@ -195,17 +203,37 @@ function love.draw()
   
   love.graphics.setFont( titleFont )
   love.graphics.printf( 'Hello Pong!', 0, 20, VIRTUAL_WIDTH, 'center' )
-  love.graphics.setFont( servingFont )
-  love.graphics.printf( 'Serving player = ' .. servingPlayer, 0, 40, VIRTUAL_WIDTH, 'center' )
-  love.graphics.setFont( scoreFont )
-  love.graphics.printf( 'Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
-  love.graphics.printf( 'Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
+
+  if gameState == 'play' or gameState == 'serve' or gameState == 'done' then
+    love.graphics.setFont( servingFont )
+    if playerCount == '1' then
+      love.graphics.printf( 'Computer Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
+    elseif playerCount == '2' then
+      love.graphics.printf( 'Player 1 Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
+    end
+    love.graphics.printf( 'Player 2 Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
+  end
+  
+  if gameState == 'play' or gameState == 'serve' then
+    love.graphics.printf( 'Serving player = ' .. servingPlayer, 0, 40, VIRTUAL_WIDTH, 'center' )
+    love.graphics.setFont( scoreFont )
+  end
 
   if gameState == 'done' then
     love.graphics.setFont( titleFont )
     love.graphics.printf( 'The player on the '  .. winningPlayer .. ' wins!', 0, 100, VIRTUAL_WIDTH, 'center' )
     love.graphics.setFont( scoreFont )
     love.graphics.printf( 'Press the space bar to play again...', 0, 130, VIRTUAL_WIDTH, 'center' )
+  end
+
+  if gameState == 'start' then
+    love.graphics.setFont( scoreFont )
+    love.graphics.printf( 'Press 1 for single player or 2 for two player', 0, 130, VIRTUAL_WIDTH, 'center' )
+    --drawScreen()
+  end
+
+  if playerCount == '1' or playerCount == '2' then
+    love.graphics.clear(40/255, 45/255, 52/255, 255/255)
   end
 
   paddleLeft:render()
@@ -223,4 +251,5 @@ function displayFPS()
   love.graphics.setColor( 0, 255, 0, 255 )
   --love.graphics.print( 'FPS: ' .. tostring(love.timer.getFPS()), 10, 10 )
   --love.graphics.print( 'dx: ' .. tostring(ball.dx), 10, 10 )
+  love.graphics.print( 'Game State: ' .. gameState, 10, 10 )
 end
