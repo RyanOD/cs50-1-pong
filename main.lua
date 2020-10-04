@@ -18,7 +18,7 @@ function love.load()
 
   math.randomseed(os.time())
 
-  gameState = 'start'
+  gameState = 'select'
 
   love.window.setTitle( 'Pong' )
 
@@ -72,21 +72,42 @@ function love.keypressed( key )
     love.event.quit()
   end
 
-  -- Set number of players
-  if key == '1' or key == '2' and gameState == 'start' then
-    playerCount = key
+  -- The following is a rudimentary finite state machine
+
+  -- 'select' state where number of active players is set
+  if gameState == 'select' then
+    if key == '1' or key == '2' then
+      playerCount = key
+      gameState = 'start'
+    end
   end
 
-  -- Start game by setting game state to "play"
-  if key == 'space' and gameState == 'start' or gameState == 'serve' or gameState == 'play' then
-    gameState = 'play'
-  elseif gameState == 'done' then
-    gameState = 'start'
-    paddleLeftScore = 0
-    paddleRightScore = 0
-    paddleLeft.y = PADDLE_LEFT_Y
-    paddleRight.y = PADDLE_RIGHT_Y
-    ball:reset()
+  -- 'start' state where the game is waiting for the initial serve
+  if gameState == 'start' then
+    if key == 'space' then
+      gameState = 'play'
+    end
+  end
+  
+  -- 'serve' state the happens after each score until the winning score is achieved
+  if gameState == 'serve' then
+    if key == 'space' then
+      gameState = 'play'
+    end
+  end
+
+  -- 'done' state waits for player to decide whether to play again and resets or quits
+  if gameState == 'done' then
+    if key == 'y' then
+      gameState = 'select'
+      paddleLeftScore = 0
+      paddleRightScore = 0
+      paddleLeft.y = PADDLE_LEFT_Y
+      paddleRight.y = PADDLE_RIGHT_Y
+      ball:reset()
+    elseif key == 'n' then
+      love.event.quit()
+    end
   end
 end
 
@@ -172,7 +193,7 @@ function love.update(dt)
     if ball.x <= -ball.radius then
       sounds['score']:play()
       paddleRightScore = paddleRightScore + 1
-      if( paddleRightScore == 10 ) then
+      if( paddleRightScore == WINNING_SCORE ) then
         winningPlayer = 'Right'
         servingPlayer = 'Left'
         gameState = 'done'
@@ -185,7 +206,7 @@ function love.update(dt)
     if ball.x >= VIRTUAL_WIDTH + ball.radius then
       sounds['score']:play()
       paddleLeftScore = paddleLeftScore + 1
-      if( paddleLeftScore == 10 ) then
+      if( paddleLeftScore == WINNING_SCORE ) then
         winningPlayer = 'Left'
         servingPlayer = 'Right'
         gameState = 'done'
@@ -204,16 +225,26 @@ function love.draw()
   love.graphics.setFont( titleFont )
   love.graphics.printf( 'Hello Pong!', 0, 20, VIRTUAL_WIDTH, 'center' )
 
-  if gameState == 'play' or gameState == 'serve' or gameState == 'done' then
-    love.graphics.setFont( servingFont )
-    if playerCount == '1' then
-      love.graphics.printf( 'Computer Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
-    elseif playerCount == '2' then
-      love.graphics.printf( 'Player 1 Score: ' .. paddleLeftScore, 10, 20, LEFT_SCORE_X, 'center' )
-    end
-    love.graphics.printf( 'Player 2 Score: ' .. paddleRightScore, 10, 20, RIGHT_SCORE_X, 'center' )
+  if gameState == 'select' then
+    love.graphics.setFont( scoreFont )
+    love.graphics.printf( 'Press 1 for single player or 2 for two player', 0, 130, VIRTUAL_WIDTH, 'center' )
   end
   
+  if gameState == 'start' then
+    love.graphics.setFont( scoreFont )
+    love.graphics.printf( 'Press the space bar to serve!', 0, 130, VIRTUAL_WIDTH, 'center' )
+  end
+
+  if gameState == 'start' or gameState == 'play' or gameState == 'serve' or gameState == 'done' then
+    love.graphics.setFont( servingFont )
+    if playerCount == '1' then
+      love.graphics.printf( 'Player 1 Score: ' .. tostring(paddleLeftScore), 10, 20, LEFT_SCORE_X, 'center' )
+    elseif playerCount == '2' then
+      love.graphics.printf( 'Player 1 Score: ' .. tostring(paddleLeftScore), 10, 20, LEFT_SCORE_X, 'center' )
+    end
+    love.graphics.printf( 'Player 2 Score: ' .. tostring(paddleRightScore), 10, 20, RIGHT_SCORE_X, 'center' )
+  end
+
   if gameState == 'play' or gameState == 'serve' then
     love.graphics.printf( 'Serving player = ' .. servingPlayer, 0, 40, VIRTUAL_WIDTH, 'center' )
     love.graphics.setFont( scoreFont )
@@ -223,16 +254,10 @@ function love.draw()
     love.graphics.setFont( titleFont )
     love.graphics.printf( 'The player on the '  .. winningPlayer .. ' wins!', 0, 100, VIRTUAL_WIDTH, 'center' )
     love.graphics.setFont( scoreFont )
-    love.graphics.printf( 'Press the space bar to play again...', 0, 130, VIRTUAL_WIDTH, 'center' )
+    love.graphics.printf( 'Press "y" to play again or "n" to quit...', 0, 130, VIRTUAL_WIDTH, 'center' )
   end
 
-  if gameState == 'start' then
-    love.graphics.setFont( scoreFont )
-    love.graphics.printf( 'Press 1 for single player or 2 for two player', 0, 130, VIRTUAL_WIDTH, 'center' )
-    --drawScreen()
-  end
-
-  if playerCount == '1' or playerCount == '2' then
+  if playerCount == 1 or playerCount == 2 then
     love.graphics.clear(40/255, 45/255, 52/255, 255/255)
   end
 
